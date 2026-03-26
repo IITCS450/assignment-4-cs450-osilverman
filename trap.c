@@ -84,7 +84,6 @@ trap(struct trapframe *tf)
     struct proc *p = myproc();
 
     if(p == 0 || (tf->cs&3) == 0){
-      // kernel page fault — fall through to existing panic behavior
       break;
     }
 
@@ -105,7 +104,6 @@ trap(struct trapframe *tf)
               tf->trapno, cpuid(), tf->eip, rcr2());
       panic("trap");
     }
-    // In user space, assume process misbehaved.
     cprintf("pid %d %s: trap %d err %d on cpu %d "
             "eip 0x%x addr 0x%x--kill proc\n",
             myproc()->pid, myproc()->name, tf->trapno,
