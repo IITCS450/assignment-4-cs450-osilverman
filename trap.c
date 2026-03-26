@@ -79,6 +79,25 @@ trap(struct trapframe *tf)
     break;
 
   //PAGEBREAK: 13
+  case T_PGFLT: {
+    uint va = rcr2();
+    struct proc *p = myproc();
+
+    if(p == 0 || (tf->cs&3) == 0){
+      // kernel page fault — fall through to existing panic behavior
+      break;
+    }
+
+    cprintf("pid %d %s: page fault va=0x%x eip=0x%x\n",
+            p->pid, p->name, va, tf->eip);
+
+    if(va < PGSIZE){
+      cprintf("  (likely NULL pointer dereference)\n");
+    }
+
+    p->killed = 1;
+    break;
+  }
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.
